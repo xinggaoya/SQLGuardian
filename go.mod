@@ -1,4 +1,4 @@
-module line
+module SQLGuardian
 
 go 1.20
 
