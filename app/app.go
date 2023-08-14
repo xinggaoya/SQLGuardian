@@ -68,7 +68,8 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		html += "<input type='text' name='port' placeholder='port' /><br/>"
 		html += "<input type='text' name='user' placeholder='user' /><br/>"
 		html += "<input type='text' name='password' placeholder='password' /><br/>"
-		html += "<input type='checkbox' name='switch' value='on' />"
+		html += "<input type='text' name='cron' placeholder='cron' /><br/>"
+		html += "<div>备份全部<input type='checkbox' name='switch' value='on' /></div>"
 		html += "<input type='text' name='database' placeholder='database' /><br/>"
 		html += "<input type='submit' value='submit' />"
 		html += "</form></body></html>"
@@ -77,6 +78,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		port, _ := db.Get([]byte("port"))
 		user, _ := db.Get([]byte("user"))
 		password, _ := db.Get([]byte("password"))
+		cron, _ := db.Get([]byte("cron"))
 		database, _ := db.Get([]byte("database"))
 		switchOn, _ := db.Get([]byte("switch"))
 		if port != nil && user != nil && password != nil {
@@ -86,6 +88,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 			html += "<input type='text' name='port' placeholder='port' value='" + string(port) + "' /><br/>"
 			html += "<input type='text' name='user' placeholder='user' value='" + string(user) + "' /><br/>"
 			html += "<input type='text' name='password' placeholder='password' value='" + string(password) + "' /><br/>"
+			html += "<input type='text' name='cron' placeholder='cron' value='" + string(cron) + "' /><br/>"
 			html += "<input type='text' name='database' placeholder='database' value='" + string(database) + "' /><br/>"
 			html += "<input type='checkbox' name='switch' value='on' checked='" + string(switchOn) + "' />"
 			html += "<input type='submit' value='submit' />"
@@ -103,6 +106,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		port := request.FormValue("port")
 		user := request.FormValue("user")
 		password := request.FormValue("password")
+		cron := request.FormValue("cron")
 		database := request.FormValue("database")
 		switchOn := request.FormValue("switch")
 		if switchOn == "on" {
@@ -113,6 +117,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		db.Set([]byte("port"), []byte(port))
 		db.Set([]byte("user"), []byte(user))
 		db.Set([]byte("password"), []byte(password))
+		db.Set([]byte("cron"), []byte(cron))
 		db.Set([]byte("database"), []byte(database))
 		db.Set([]byte("switch"), []byte(switchOn))
 

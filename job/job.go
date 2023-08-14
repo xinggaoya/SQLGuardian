@@ -29,6 +29,7 @@ func Run(host string, port string, user string, password string, database string
 		DBName:               database,
 		AllowNativePasswords: true,
 	}
+	var c = cron.New()
 
 	// 创建MySQL数据库连接  用于测试
 	db, err := sql.Open("mysql", dbConfig.FormatDSN())
@@ -53,8 +54,11 @@ func Run(host string, port string, user string, password string, database string
 			log.Fatal(err)
 		}
 	}
-	// 创建定时任务
-	c := cron.New()
+	// 清理历史任务
+	entre := c.Entries()
+	for _, en := range entre {
+		c.Remove(en.ID)
+	}
 
 	// 每天凌晨执行备份任务
 	_, err = c.AddFunc("@every 1m", func() {
