@@ -1,3 +1,5 @@
 /logs/
 /.idea/
 /*.exe
+/backup/
+/cache/db/badger/

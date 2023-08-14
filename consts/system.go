@@ -8,4 +8,6 @@ package consts
 const (
 	// BackupDir 备份文件夹
 	BackupDir = "backup"
+	// DBPath 数据库路径
+	DBPath = "cache/db/badger"
 )

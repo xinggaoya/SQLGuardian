@@ -1,7 +1,7 @@
 package app
 
 import (
-	"SQLGuardian/cache/appCache"
+	"SQLGuardian/cache/db"
 	"SQLGuardian/consts"
 	"SQLGuardian/job"
 	"net/http"
@@ -58,19 +58,19 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		html += "<input type='submit' value='submit' />"
 		html += "</form></body></html>"
 
-		host, _ := appCache.Get("host")
-		port, _ := appCache.Get("port")
-		user, _ := appCache.Get("user")
-		password, _ := appCache.Get("password")
-		database, _ := appCache.Get("database")
+		host, _ := db.Get([]byte("host"))
+		port, _ := db.Get([]byte("port"))
+		user, _ := db.Get([]byte("user"))
+		password, _ := db.Get([]byte("password"))
+		database, _ := db.Get([]byte("database"))
 		if host != nil && port != nil && user != nil && password != nil && database != nil {
 			html = ""
 			html = "<html><body><h1>Config Your Database</h1><form action='/config' method='post'>"
-			html += "<input type='text' name='host' placeholder='host' value='" + host.(string) + "' /><br/>"
-			html += "<input type='text' name='port' placeholder='port' value='" + port.(string) + "' /><br/>"
-			html += "<input type='text' name='user' placeholder='user' value='" + user.(string) + "' /><br/>"
-			html += "<input type='text' name='password' placeholder='password' value='" + password.(string) + "' /><br/>"
-			html += "<input type='text' name='database' placeholder='database' value='" + database.(string) + "' /><br/>"
+			html += "<input type='text' name='host' placeholder='host' value='" + string(host) + "' /><br/>"
+			html += "<input type='text' name='port' placeholder='port' value='" + string(port) + "' /><br/>"
+			html += "<input type='text' name='user' placeholder='user' value='" + string(user) + "' /><br/>"
+			html += "<input type='text' name='password' placeholder='password' value='" + string(password) + "' /><br/>"
+			html += "<input type='text' name='database' placeholder='database' value='" + string(database) + "' /><br/>"
 			html += "<input type='submit' value='submit' />"
 			html += "</form></body></html>"
 		}
@@ -88,11 +88,11 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		password := request.FormValue("password")
 		database := request.FormValue("database")
 		// 设置缓存
-		appCache.Set("host", host)
-		appCache.Set("port", port)
-		appCache.Set("user", user)
-		appCache.Set("password", password)
-		appCache.Set("database", database)
+		db.Set([]byte("host"), []byte(host))
+		db.Set([]byte("port"), []byte(port))
+		db.Set([]byte("user"), []byte(user))
+		db.Set([]byte("password"), []byte(password))
+		db.Set([]byte("database"), []byte(database))
 
 		job.Run(host, port, user, password, database)
 		// 重定向
