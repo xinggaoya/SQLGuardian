@@ -58,10 +58,13 @@ func Run(host string, port string, user string, password string, database string
 
 	// 每天凌晨执行备份任务
 	_, err = c.AddFunc("@every 1m", func() {
-		// 格式化当前日期作为备份文件名
-		backupFileName := fmt.Sprintf("%s/%s_%s.sql", backupDir, dbConfig.DBName, time.Now().Format("2006-01-02_15-04-05"))
-		dbName := database
 		if database == "" {
+			database = "all"
+		}
+		// 备份文件名 使用时间戳
+		backupFileName := fmt.Sprintf("%s/%s_%s.sql", backupDir, database, time.Now().Format("20060102150405"))
+		dbName := database
+		if database == "all" {
 			dbName = "--all-databases"
 		} else {
 			dbName = "--databases " + dbName

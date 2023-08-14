@@ -78,6 +78,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		user, _ := db.Get([]byte("user"))
 		password, _ := db.Get([]byte("password"))
 		database, _ := db.Get([]byte("database"))
+		switchOn, _ := db.Get([]byte("switch"))
 		if port != nil && user != nil && password != nil {
 			html = ""
 			html = "<html><body><h1>Config Your Database</h1><form action='/config' method='post'>"
@@ -86,6 +87,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 			html += "<input type='text' name='user' placeholder='user' value='" + string(user) + "' /><br/>"
 			html += "<input type='text' name='password' placeholder='password' value='" + string(password) + "' /><br/>"
 			html += "<input type='text' name='database' placeholder='database' value='" + string(database) + "' /><br/>"
+			html += "<input type='checkbox' name='switch' value='on' checked='" + string(switchOn) + "' />"
 			html += "<input type='submit' value='submit' />"
 			html += "</form></body></html>"
 		}
@@ -112,6 +114,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		db.Set([]byte("user"), []byte(user))
 		db.Set([]byte("password"), []byte(password))
 		db.Set([]byte("database"), []byte(database))
+		db.Set([]byte("switch"), []byte(switchOn))
 
 		job.Run("", port, user, password, database)
 		// 重定向
