@@ -1,6 +1,7 @@
 package main
 
 import (
+	"SQLGuardian/app"
 	"SQLGuardian/router"
 	"fmt"
 	"log"
@@ -13,11 +14,11 @@ func main() {
 	// 打印端口
 	fmt.Println("server is running at port " + port)
 	// 提示配置数据库
-	fmt.Printf("please config your database in %s\n", "http://localhost:"+port+"/config")
 	if err != nil {
 		log.Fatal(err)
 	}
 	router.InitRouters()
+	app.InitJob(port)
 	err = http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		log.Fatal(err)

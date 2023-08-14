@@ -1,6 +1,7 @@
 package job
 
 import (
+	"SQLGuardian/consts"
 	"database/sql"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 	"time"
 )
 
@@ -22,7 +24,7 @@ func Run(host string, port string, user string, password string, database string
 	dbConfig := mysql.Config{
 		User:                 user,
 		Passwd:               password,
-		Addr:                 host + ":" + port,
+		Addr:                 "localhost:" + port,
 		Net:                  "tcp",
 		DBName:               database,
 		AllowNativePasswords: true,
@@ -43,7 +45,7 @@ func Run(host string, port string, user string, password string, database string
 	// 获取当前程序运行的目录
 	dir, err := os.Getwd()
 	//备份文件夹
-	backupDir := fmt.Sprintf("%s/backup", dir)
+	backupDir := fmt.Sprintf("%s/"+consts.BackupDir, dir)
 	// 创建备份文件夹
 	if _, err = os.Stat(backupDir); os.IsNotExist(err) {
 		err = os.Mkdir(backupDir, os.ModePerm)
@@ -57,13 +59,19 @@ func Run(host string, port string, user string, password string, database string
 	// 每天凌晨执行备份任务
 	_, err = c.AddFunc("@every 1m", func() {
 		// 格式化当前日期作为备份文件名
-		backupFileName := fmt.Sprintf("%s/backup_%s.sql", backupDir, time.Now().Format("20060102150405"))
-
+		backupFileName := fmt.Sprintf("%s/%s_%s.sql", backupDir, dbConfig.DBName, time.Now().Format("2006-01-02_15-04-05"))
+		dbName := database
+		if database == "" {
+			dbName = "--all-databases"
+		} else {
+			dbName = "--databases " + dbName
+		}
 		// 执行备份命令
-		backupCmd := fmt.Sprintf("mysqldump -u%s -h%s -p%s --all-databases > %s",
+		backupCmd := fmt.Sprintf("mysqldump -P%s -u%s -p%s %s > %s",
+			port,
 			dbConfig.User,
-			dbConfig.Addr,
 			dbConfig.Passwd,
+			dbName,
 			backupFileName)
 
 		// 执行备份命令
@@ -73,7 +81,23 @@ func Run(host string, port string, user string, password string, database string
 			return
 		}
 
-		log.Println("备份成功:", backupFileName)
+		// 保留最近的5个备份文件
+		// 获取备份文件列表
+		backupFiles, err := os.ReadDir(backupDir)
+		if err != nil {
+			fmt.Println(err)
+		}
+		// 文件名排序
+		sort.Slice(backupFiles, func(i, j int) bool {
+			return backupFiles[i].Name() > backupFiles[j].Name()
+		})
+
+		// 删除多余的备份文件
+		for i := 5; i < len(backupFiles); i++ {
+			_ = os.Remove(fmt.Sprintf("%s/%s", backupDir, backupFiles[i].Name()))
+		}
+
+		log.Println("备份成功,备份路径:", backupFileName)
 	})
 
 	if err != nil {
