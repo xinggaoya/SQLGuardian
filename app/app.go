@@ -5,6 +5,7 @@ import (
 	"SQLGuardian/consts"
 	"SQLGuardian/job"
 	"fmt"
+	"io"
 	"net/http"
 	"os"
 )
@@ -35,16 +36,85 @@ func GetBackupDir(writer http.ResponseWriter, request *http.Request) {
 	// 获取备份文件夹文件
 	files, _ := os.ReadDir(dir + "/" + consts.BackupDir)
 	// 返回文件夹文件
-	html := "<html><body><h1>Backup Files</h1><ul>"
-	for _, file := range files {
+	html := `
+<html>
+<head>
+	<style>
+		table {
+			border-collapse: collapse;
+			width: 80%;
+			margin: 20px auto;
+		}
+		th, td {
+			border: 1px solid #ddd;
+			padding: 8px;
+			text-align: left;
+		}
+		th {
+			background-color: #f2f2f2;
+		}
+		a {
+			text-decoration: none;
+		}
+	</style>
+</head>
+<body>
+	<h1>Backup Files</h1>
+	<table>
+		<thead>
+			<tr>
+				<th>File Name</th>
+				<th>File Time</th>
+				<th>Actions</th>
+			</tr>
+		</thead>
+		<tbody>
+	`
 
-		a := "<a href='/delete?name=" + file.Name() + "'>" + file.Name() + "</a>"
-		// li
-		html += "<li>" + a + "</li>"
+	for _, file := range files {
+		info, _ := file.Info()
+		timeStr := info.ModTime().Format("2006-01-02 15:04:05")
+		a := "<li>" + file.Name() + "</li>"
+		html += `
+		<tr>
+			<td>` + a + `</td>
+			<td>` + timeStr + `</td>
+			<td><a href="/download?name=` + file.Name() + `">Download</a> | <a href="/delete?name=` + file.Name() + `">Delete</a></td>
+		</tr>`
 	}
-	html += "</ul></body></html>"
+
+	html += `
+		</tbody>
+	</table>
+</body>
+</html>`
+
+	// Now 'html' contains the formatted and styled HTML table with the file list and actions.
+
 	// 写入
 	_, _ = writer.Write([]byte(html))
+}
+
+// DownloadFile 下载文件
+func DownloadFile(writer http.ResponseWriter, request *http.Request) {
+	// 获取参数
+	name := request.URL.Query().Get("name")
+	// 获取工作目录
+	dir, _ := os.Getwd()
+	// 打开文件
+	file, _ := os.Open(dir + "/" + consts.BackupDir + "/" + name)
+	// 关闭文件
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+
+		}
+	}(file)
+	// 设置响应头
+	writer.Header().Set("Content-Type", "application/octet-stream")
+	writer.Header().Set("Content-Disposition", "attachment; filename="+name)
+	// 写出
+	_, _ = io.Copy(writer, file)
 }
 
 // DeleteFile 删除文件
@@ -56,7 +126,7 @@ func DeleteFile(writer http.ResponseWriter, request *http.Request) {
 	// 删除文件
 	_ = os.Remove(dir + "/" + consts.BackupDir + "/" + name)
 	// 重定向
-	http.Redirect(writer, request, "/tmpfiles", http.StatusFound)
+	http.Redirect(writer, request, "/", http.StatusFound)
 }
 
 // SetConfig 配置数据库
@@ -124,6 +194,6 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 
 		job.Run(cron, "", port, user, password, database)
 		// 重定向
-		http.Redirect(writer, request, "/tmpfiles", http.StatusFound)
+		http.Redirect(writer, request, "/", http.StatusFound)
 	}
 }

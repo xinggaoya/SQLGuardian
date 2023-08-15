@@ -13,7 +13,9 @@ import (
 func InitRouters() {
 	var err error
 	// 备份文件列表
-	http.HandleFunc("/tmpfiles", app.GetBackupDir)
+	http.HandleFunc("/", app.GetBackupDir)
+	// 下载文件
+	http.HandleFunc("/download", app.DownloadFile)
 	// 删除文件
 	http.HandleFunc("/delete", app.DeleteFile)
 	// 配置数据库
