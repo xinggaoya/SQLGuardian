@@ -14,10 +14,15 @@ import (
 	"time"
 )
 
-/**
-  @author: XingGao
-  @date: 2023/8/13
-**/
+/*
+*
+
+	@author: XingGao
+	@date: 2023/8/13
+
+*
+*/
+var c = cron.New()
 
 func Run(cronStr string, host string, port string, user string, password string, database string) {
 	// MySQL数据库连接信息
@@ -29,7 +34,6 @@ func Run(cronStr string, host string, port string, user string, password string,
 		DBName:               database,
 		AllowNativePasswords: true,
 	}
-	var c = cron.New()
 
 	// 创建MySQL数据库连接  用于测试
 	db, err := sql.Open("mysql", dbConfig.FormatDSN())
@@ -108,7 +112,7 @@ func Run(cronStr string, host string, port string, user string, password string,
 	})
 
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("cron failed, err:%v\n", err)
 	}
 
 	// 启动定时任务

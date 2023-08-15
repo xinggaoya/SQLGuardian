@@ -91,7 +91,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 			html += "<input type='text' name='password' placeholder='password' value='" + string(password) + "' /><br/>"
 			html += "<input type='text' name='cron' placeholder='cron' value='" + string(cron) + "' /><br/>"
 			html += "<input type='text' name='database' placeholder='database' value='" + string(database) + "' /><br/>"
-			html += "<input type='checkbox' name='switch' value='on' checked='" + string(switchOn) + "' />"
+			html += "<div>备份全部<input type='checkbox' name='switch' value='on' checked='" + string(switchOn) + "' /><div/>"
 			html += "<input type='submit' value='submit' />"
 			html += "</form></body></html>"
 		}
