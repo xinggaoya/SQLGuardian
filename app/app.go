@@ -18,10 +18,11 @@ import (
 func InitJob(systemPort string) {
 	port, _ := db.Get([]byte("port"))
 	user, _ := db.Get([]byte("user"))
+	cron, _ := db.Get([]byte("cron"))
 	password, _ := db.Get([]byte("password"))
 	database, _ := db.Get([]byte("database"))
-	if port != nil && user != nil && password != nil && database != nil {
-		job.Run("", string(port), string(user), string(password), string(database))
+	if cron != nil && port != nil && user != nil && password != nil && database != nil {
+		job.Run(string(cron), "", string(port), string(user), string(password), string(database))
 	} else {
 		fmt.Printf("please config your database in %s\n", "http://localhost:"+systemPort+"/config")
 	}
@@ -121,7 +122,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		db.Set([]byte("database"), []byte(database))
 		db.Set([]byte("switch"), []byte(switchOn))
 
-		job.Run("", port, user, password, database)
+		job.Run(cron, "", port, user, password, database)
 		// 重定向
 		http.Redirect(writer, request, "/tmpfiles", http.StatusFound)
 	}

@@ -19,7 +19,7 @@ import (
   @date: 2023/8/13
 **/
 
-func Run(host string, port string, user string, password string, database string) {
+func Run(cronStr string, host string, port string, user string, password string, database string) {
 	// MySQL数据库连接信息
 	dbConfig := mysql.Config{
 		User:                 user,
@@ -61,7 +61,7 @@ func Run(host string, port string, user string, password string, database string
 	}
 
 	// 每天凌晨执行备份任务
-	_, err = c.AddFunc("@every 1m", func() {
+	_, err = c.AddFunc(cronStr, func() {
 		if database == "" {
 			database = "all"
 		}
