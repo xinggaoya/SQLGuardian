@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 )
 
 /**
@@ -64,6 +65,7 @@ func GetBackupDir(writer http.ResponseWriter, request *http.Request) {
 		<thead>
 			<tr>
 				<th>File Name</th>
+				<th>File Size</th>
 				<th>File Time</th>
 				<th>Actions</th>
 			</tr>
@@ -78,6 +80,7 @@ func GetBackupDir(writer http.ResponseWriter, request *http.Request) {
 		html += `
 		<tr>
 			<td>` + a + `</td>
+			<td>` + strconv.FormatInt(info.Size(), 10) + `</td>
 			<td>` + timeStr + `</td>
 			<td><a href="/download?name=` + file.Name() + `">Download</a> | <a href="/delete?name=` + file.Name() + `">Delete</a></td>
 		</tr>`

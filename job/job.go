@@ -55,7 +55,7 @@ func Run(cronStr string, host string, port string, user string, password string,
 	if _, err = os.Stat(backupDir); os.IsNotExist(err) {
 		err = os.Mkdir(backupDir, os.ModePerm)
 		if err != nil {
-			log.Fatal(err)
+			fmt.Println(err)
 		}
 	}
 	// 清理历史任务
@@ -86,10 +86,21 @@ func Run(cronStr string, host string, port string, user string, password string,
 			backupFileName)
 
 		// 执行备份命令
-		backupErr := execSystemCommand(backupCmd)
+		output, backupErr := execSystemCommand(backupCmd)
 		if backupErr != nil {
-			log.Println("备份失败:", backupErr)
+			fmt.Println("备份失败:", backupErr)
+			// 写入err.log日志
+			errPath := fmt.Sprintf("err.log")
+			// 内容
+			content := fmt.Sprintf("%s 备份失败,error:%s \n", time.Now().Format("2006-01-02 15:04:05"), output)
+			writeLog(errPath, content)
 			return
+		} else {
+			// 写入成功日志
+			successPath := fmt.Sprintf("success.log")
+			// 内容
+			content := fmt.Sprintf("%s 备份成功,备份路径:%s \n", time.Now().Format("2006-01-02 15:04:05"), output)
+			writeLog(successPath, content)
 		}
 
 		// 保留最近的5个备份文件
@@ -120,16 +131,44 @@ func Run(cronStr string, host string, port string, user string, password string,
 }
 
 // 根据操作系统执行Shell命令的辅助函数
-func execSystemCommand(cmd string) error {
+func execSystemCommand(cmd string) ([]byte, error) {
 	var command *exec.Cmd
 
+	// 使用管理员权限执行命令
 	if runtime.GOOS == "windows" {
 		command = exec.Command("cmd", "/C", cmd)
 	} else {
 		command = exec.Command("bash", "-c", cmd)
 	}
+	return command.CombinedOutput()
+}
 
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
-	return command.Run()
+// 日志文件写入
+func writeLog(logPath string, content string) {
+	// 获取当前程序运行的目录
+	dir, err := os.Getwd()
+	path := fmt.Sprintf("%s/log", dir)
+	// 检查文件夹是否存在
+	if _, err = os.Stat(path); os.IsNotExist(err) {
+		err = os.Mkdir(path, os.ModePerm)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
+	// 打开文件
+	file := fmt.Sprintf("%s/%s", path, logPath)
+	f, err := os.OpenFile(file, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// 写入文件
+	_, err = f.WriteString(content)
+	if err != nil {
+		fmt.Println(err)
+	}
+	// 关闭文件
+	err = f.Close()
+	if err != nil {
+		fmt.Println(err)
+	}
 }
