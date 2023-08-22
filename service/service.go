@@ -7,6 +7,7 @@ import (
 	"github.com/kardianos/service"
 	"log"
 	"net/http"
+	"os"
 )
 
 type program struct{}
@@ -39,10 +40,13 @@ func (p *program) Run() {
 
 // RegisterService 注册服务
 func RegisterService() {
+	// 获取工作目录
+	dir, _ := os.Getwd()
 	svcConfig := &service.Config{
-		Name:        "SQLGuardian",
-		DisplayName: "SQLGuardian",
-		Description: "一款简单的MySQL数据库备份工具",
+		Name:             "SQLGuardian",
+		DisplayName:      "一款简单的MySQL数据库备份工具",
+		Description:      "SQLGuardian",
+		WorkingDirectory: dir,
 	}
 
 	prg := &program{}
@@ -50,44 +54,21 @@ func RegisterService() {
 	s, err := service.New(prg, svcConfig)
 	if err != nil {
 		fmt.Println(err)
+		os.Exit(1)
 	}
 
-	// 获取用户输入
-	var choice int
-	fmt.Println("Select an operation:")
-	fmt.Println("1. install")
-	fmt.Println("2. Start")
-	fmt.Println("3. stop")
-	fmt.Println("4. uninstall")
+	if len(os.Args) > 1 {
+		err = service.Control(s, os.Args[1])
+		if err != nil {
+			fmt.Println(err)
+		}
+		fmt.Println("operation successful")
+		return
+	}
 
-	fmt.Print("Enter your choice (1/2/3/4): ")
-	fmt.Scan(&choice)
-
-	switch choice {
-	case 1:
-		err = s.Install()
-		if err != nil {
-			return
-		}
-	case 2:
-		err = s.Start()
-		if err != nil {
-			return
-		}
-	case 3:
-		err = s.Stop()
-		if err != nil {
-			return
-		}
-	case 4:
-		err = s.Stop()
-		err = s.Uninstall()
-		if err != nil {
-			return
-		}
-	default:
-		// 运行
-		s.Run()
+	err = s.Run()
+	if err != nil {
+		fmt.Println(err)
 	}
 
 }

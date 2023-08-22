@@ -61,6 +61,9 @@ func GetBackupDir(writer http.ResponseWriter, request *http.Request) {
 </head>
 <body>
 	<h1>Backup Files</h1>
+`
+	html += "<div><a href='/config'>Config Your Database</a></div>"
+	html += `
 	<table>
 		<thead>
 			<tr>
