@@ -25,11 +25,14 @@ import (
 var c = cron.New()
 
 func Run(cronStr string, host string, port string, user string, password string, database string) {
+	if host == "" {
+		host = "localhost"
+	}
 	// MySQL数据库连接信息
 	dbConfig := mysql.Config{
 		User:                 user,
 		Passwd:               password,
-		Addr:                 "localhost:" + port,
+		Addr:                 host + ":" + port,
 		Net:                  "tcp",
 		DBName:               database,
 		AllowNativePasswords: true,
@@ -78,7 +81,8 @@ func Run(cronStr string, host string, port string, user string, password string,
 			dbName = "--databases " + dbName
 		}
 		// 执行备份命令
-		backupCmd := fmt.Sprintf("mysqldump -P%s -u%s -p%s %s > %s",
+		backupCmd := fmt.Sprintf(backupDir+"/static/mysqldump.exe -h %s -P%s -u%s -p%s %s > %s",
+			host,
 			port,
 			dbConfig.User,
 			dbConfig.Passwd,
@@ -86,6 +90,7 @@ func Run(cronStr string, host string, port string, user string, password string,
 			backupFileName)
 
 		// 执行备份命令
+		fmt.Printf("备份命令:%s \n", backupCmd)
 		output, backupErr := execSystemCommand(backupCmd)
 		if backupErr != nil {
 			fmt.Println("备份失败:", backupErr)

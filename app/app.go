@@ -18,13 +18,14 @@ import (
 
 // InitJob 初始化
 func InitJob(systemPort string) {
+	host, _ := db.Get([]byte("host"))
 	port, _ := db.Get([]byte("port"))
 	user, _ := db.Get([]byte("user"))
 	cron, _ := db.Get([]byte("cron"))
 	password, _ := db.Get([]byte("password"))
 	database, _ := db.Get([]byte("database"))
 	if cron != nil && port != nil && user != nil && password != nil && database != nil {
-		job.Run(string(cron), "", string(port), string(user), string(password), string(database))
+		job.Run(string(cron), string(host), string(port), string(user), string(password), string(database))
 	} else {
 		fmt.Printf("please config your database in %s\n", "http://localhost:"+systemPort+"/config")
 	}
@@ -141,7 +142,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 	if request.Method == "GET" {
 		// 写出三个输入框
 		html := "<html><body><h1>Config Your Database</h1><form action='/config' method='post'>"
-		//html += "<input type='text' name='host' placeholder='host' /><br/>"
+		html += "<input type='text' name='host' placeholder='host' /><br/>"
 		html += "<input type='text' name='port' placeholder='port' /><br/>"
 		html += "<input type='text' name='user' placeholder='user' /><br/>"
 		html += "<input type='text' name='password' placeholder='password' /><br/>"
@@ -151,7 +152,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		html += "<input type='submit' value='submit' />"
 		html += "</form></body></html>"
 
-		//host, _ := db.Get([]byte("host"))
+		host, _ := db.Get([]byte("host"))
 		port, _ := db.Get([]byte("port"))
 		user, _ := db.Get([]byte("user"))
 		password, _ := db.Get([]byte("password"))
@@ -161,7 +162,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		if port != nil && user != nil && password != nil {
 			html = ""
 			html = "<html><body><h1>Config Your Database</h1><form action='/config' method='post'>"
-			//html += "<input type='text' name='host' placeholder='host' value='" + string(host) + "' /><br/>"
+			html += "<input type='text' name='host' placeholder='host' value='" + string(host) + "' /><br/>"
 			html += "<input type='text' name='port' placeholder='port' value='" + string(port) + "' /><br/>"
 			html += "<input type='text' name='user' placeholder='user' value='" + string(user) + "' /><br/>"
 			html += "<input type='text' name='password' placeholder='password' value='" + string(password) + "' /><br/>"
@@ -179,7 +180,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 	// Post
 	if request.Method == "POST" {
 		// 获取参数
-		//host := request.FormValue("host")
+		host := request.FormValue("host")
 		port := request.FormValue("port")
 		user := request.FormValue("user")
 		password := request.FormValue("password")
@@ -190,7 +191,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 			database = ""
 		}
 		// 设置缓存
-		//db.Set([]byte("host"), []byte(host))
+		db.Set([]byte("host"), []byte(host))
 		db.Set([]byte("port"), []byte(port))
 		db.Set([]byte("user"), []byte(user))
 		db.Set([]byte("password"), []byte(password))
