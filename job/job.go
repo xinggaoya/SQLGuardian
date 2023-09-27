@@ -77,11 +77,9 @@ func Run(cronStr string, host string, port string, user string, password string,
 		dbName := database
 		if database == "all" {
 			dbName = "--all-databases"
-		} else {
-			dbName = "--databases " + dbName
 		}
 		// 执行备份命令
-		backupCmd := fmt.Sprintf(backupDir+"/static/mysqldump.exe -h %s -P%s -u%s -p%s %s > %s",
+		backupCmd := fmt.Sprintf(dir+"/templates/data/mysqldump -h %s -P%s -u%s -p%s %s > %s",
 			host,
 			port,
 			dbConfig.User,
@@ -90,7 +88,6 @@ func Run(cronStr string, host string, port string, user string, password string,
 			backupFileName)
 
 		// 执行备份命令
-		fmt.Printf("备份命令:%s \n", backupCmd)
 		output, backupErr := execSystemCommand(backupCmd)
 		if backupErr != nil {
 			fmt.Println("备份失败:", backupErr)

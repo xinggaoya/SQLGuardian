@@ -10,6 +10,7 @@ import (
 func GetBadgerDBInMemory() *badger.DB {
 	// 打开或创建一个Badger数据库
 	opts := badger.DefaultOptions(consts.DBPath).WithInMemory(false)
+	opts.Logger = nil
 	db, err := badger.Open(opts)
 	if err != nil {
 		fmt.Printf("badger.Open() error: %v\n", err)

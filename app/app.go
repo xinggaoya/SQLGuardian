@@ -4,8 +4,8 @@ import (
 	"SQLGuardian/cache/db"
 	"SQLGuardian/consts"
 	"SQLGuardian/job"
-	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,6 +15,15 @@ import (
   @author: XingGao
   @date: 2023/8/11
 **/
+
+type Config struct {
+	Host     string
+	Port     string
+	User     string
+	Password string
+	Cron     string
+	Database string
+}
 
 // InitJob 初始化
 func InitJob(systemPort string) {
@@ -26,8 +35,9 @@ func InitJob(systemPort string) {
 	database, _ := db.Get([]byte("database"))
 	if cron != nil && port != nil && user != nil && password != nil && database != nil {
 		job.Run(string(cron), string(host), string(port), string(user), string(password), string(database))
+		log.Printf("please visit %s\n", "http://localhost:"+systemPort)
 	} else {
-		fmt.Printf("please config your database in %s\n", "http://localhost:"+systemPort+"/config")
+		log.Printf("please config your database in %s\n", "http://localhost:"+systemPort+"/config")
 	}
 }
 
@@ -160,6 +170,9 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		database, _ := db.Get([]byte("database"))
 		switchOn, _ := db.Get([]byte("switch"))
 		if port != nil && user != nil && password != nil {
+			if string(database) == "" {
+				switchOn = []byte("on")
+			}
 			html = ""
 			html = "<html><body><h1>Config Your Database</h1><form action='/config' method='post'>"
 			html += "<input type='text' name='host' placeholder='host' value='" + string(host) + "' /><br/>"
@@ -199,7 +212,7 @@ func SetConfig(writer http.ResponseWriter, request *http.Request) {
 		db.Set([]byte("database"), []byte(database))
 		db.Set([]byte("switch"), []byte(switchOn))
 
-		job.Run(cron, "", port, user, password, database)
+		job.Run(cron, host, port, user, password, database)
 		// 重定向
 		http.Redirect(writer, request, "/", http.StatusFound)
 	}

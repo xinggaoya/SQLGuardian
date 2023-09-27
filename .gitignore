@@ -3,3 +3,4 @@
 /*.exe
 /backup/
 /cache/db/badger/
+/log/
