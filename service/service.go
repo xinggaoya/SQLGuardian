@@ -3,6 +3,7 @@ package service
 import (
 	"SQLGuardian/app"
 	"SQLGuardian/router"
+	"SQLGuardian/utils"
 	"fmt"
 	"github.com/kardianos/service"
 	"log"
@@ -40,15 +41,14 @@ func (p *program) Run() {
 
 // RegisterService 注册服务 service will install / un-install, start / stop
 func RegisterService() {
-	// 获取工作目录
-	dir, _ := os.Getwd()
+	// 获取可执行文件所在目录
+	dir := utils.GetExeDir()
 	svcConfig := &service.Config{
 		Name:             "SQLGuardian",
 		DisplayName:      "一款简单的MySQL数据库备份工具",
 		Description:      "一款简单的MySQL数据库备份工具",
 		WorkingDirectory: dir,
 	}
-
 	prg := &program{}
 
 	s, err := service.New(prg, svcConfig)

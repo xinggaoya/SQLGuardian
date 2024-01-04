@@ -2,6 +2,7 @@ package job
 
 import (
 	"SQLGuardian/consts"
+	"SQLGuardian/utils"
 	"database/sql"
 	"fmt"
 	"github.com/go-sql-driver/mysql"
@@ -51,7 +52,7 @@ func Run(cronStr string, host string, port string, user string, password string,
 		}
 	}(db)
 	// 获取当前程序运行的目录
-	dir, err := os.Getwd()
+	dir := utils.GetExeDir()
 	//备份文件夹
 	backupDir := fmt.Sprintf("%s/"+consts.BackupDir, dir)
 	// 创建备份文件夹
@@ -148,7 +149,8 @@ func execSystemCommand(cmd string) ([]byte, error) {
 // 日志文件写入
 func writeLog(logPath string, content string) {
 	// 获取当前程序运行的目录
-	dir, err := os.Getwd()
+	var err error
+	dir := utils.GetExeDir()
 	path := fmt.Sprintf("%s/log", dir)
 	// 检查文件夹是否存在
 	if _, err = os.Stat(path); os.IsNotExist(err) {
