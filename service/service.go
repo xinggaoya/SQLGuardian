@@ -23,7 +23,7 @@ func (p *program) Stop(s service.Service) error {
 
 func (p *program) Run() {
 	var err error
-	var port = "8000"
+	var port = "9210"
 	// 打印端口
 	log.Println("server is running at port " + port)
 	// 提示配置数据库
@@ -38,14 +38,14 @@ func (p *program) Run() {
 	}
 }
 
-// RegisterService 注册服务
+// RegisterService 注册服务 service will install / un-install, start / stop
 func RegisterService() {
 	// 获取工作目录
 	dir, _ := os.Getwd()
 	svcConfig := &service.Config{
 		Name:             "SQLGuardian",
 		DisplayName:      "一款简单的MySQL数据库备份工具",
-		Description:      "SQLGuardian",
+		Description:      "一款简单的MySQL数据库备份工具",
 		WorkingDirectory: dir,
 	}
 
