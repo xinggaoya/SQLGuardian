@@ -4,3 +4,6 @@
 /backup/
 /cache/db/badger/
 /log/
+/web/node_modules
+/web/.idea
+/web/.vscode

@@ -2,6 +2,8 @@ package router
 
 import (
 	"SQLGuardian/app"
+	"SQLGuardian/consts"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -10,18 +12,25 @@ import (
   @date: 2023/8/13
 **/
 
-func InitRouters() {
-	var err error
-	// 备份文件列表
-	http.HandleFunc("/", app.GetBackupDir)
-	// 下载文件
-	http.HandleFunc("/download", app.DownloadFile)
-	// 删除文件
-	http.HandleFunc("/delete", app.DeleteFile)
-	// 配置数据库
-	http.HandleFunc("/config", app.SetConfig)
-	// 异常
-	if err != nil {
-		panic(err)
+func InitRouters(router *gin.Engine) {
+	view := router.Group("/")
+	{
+		view.GET("/favicon.ico", func(c *gin.Context) {
+			// 返回静态文件
+			c.File(consts.StaticDir + "favicon.ico")
+		})
+		view.GET("/", func(c *gin.Context) {
+			c.HTML(http.StatusOK, "index.html", nil)
+		})
+
+	}
+
+	api := router.Group("/api")
+	{
+		api.POST("/download", app.DownloadFile)
+		api.POST("/delete", app.DeleteFile)
+		api.GET("/config", app.SetConfig)
+		api.GET("/file/all", app.GetBackupFilesList)
+		api.POST("/config", app.SetConfig)
 	}
 }

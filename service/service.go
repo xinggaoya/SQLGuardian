@@ -2,14 +2,26 @@ package service
 
 import (
 	"SQLGuardian/app"
+	"SQLGuardian/consts"
+	"SQLGuardian/middleware"
 	"SQLGuardian/router"
 	"SQLGuardian/utils"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/kardianos/service"
+	"gopkg.in/yaml.v3"
 	"log"
-	"net/http"
 	"os"
 )
+
+type Config struct {
+	Server ServerConfig `yaml:"server"`
+}
+
+type ServerConfig struct {
+	Port string `yaml:"port"`
+	Mode string `yaml:"mode"`
+}
 
 type program struct{}
 
@@ -23,17 +35,25 @@ func (p *program) Stop(s service.Service) error {
 }
 
 func (p *program) Run() {
-	var err error
-	var port = "9210"
+	config, err := loadConfig("config.yaml")
+	if err != nil {
+		log.Fatalf("Error loading config: %v", err)
+	}
+	staticPath := consts.StaticDir
+	r := gin.Default()
+	r.Use(middleware.Cors())
+	// 静态文件
+	r.Static("/assets", staticPath+"assets")
+	r.LoadHTMLGlob(staticPath + "index.html")
 	// 打印端口
-	log.Println("server is running at port " + port)
+	log.Println("server is running at port " + config.Server.Port)
 	// 提示配置数据库
 	if err != nil {
 		log.Fatal(err)
 	}
-	router.InitRouters()
-	app.InitJob(port)
-	err = http.ListenAndServe(":"+port, nil)
+	router.InitRouters(r)
+	app.InitJob(config.Server.Port)
+	err = r.Run(":" + config.Server.Port)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,4 +91,21 @@ func RegisterService() {
 		fmt.Println(err)
 	}
 
+}
+
+func loadConfig(filename string) (*Config, error) {
+	// 读取文件内容
+	data, err := os.ReadFile(filename)
+	if err != nil {
+		return nil, err
+	}
+
+	// 解析YAML
+	var config Config
+	err = yaml.Unmarshal(data, &config)
+	if err != nil {
+		return nil, err
+	}
+
+	return &config, nil
 }
