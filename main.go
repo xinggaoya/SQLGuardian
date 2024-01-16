@@ -1,9 +1,9 @@
 package main
 
 import (
-	"SQLGuardian/service"
+	"SQLGuardian/app"
 )
 
 func main() {
-	service.RegisterService()
+	app.RegisterService()
 }

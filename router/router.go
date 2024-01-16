@@ -1,8 +1,7 @@
 package router
 
 import (
-	"SQLGuardian/app"
-	"SQLGuardian/consts"
+	"SQLGuardian/app/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -15,22 +14,20 @@ import (
 func InitRouters(router *gin.Engine) {
 	view := router.Group("/")
 	{
-		view.GET("/favicon.ico", func(c *gin.Context) {
-			// 返回静态文件
-			c.File(consts.StaticDir + "favicon.ico")
-		})
 		view.GET("/", func(c *gin.Context) {
-			c.HTML(http.StatusOK, "index.html", nil)
+			c.HTML(http.StatusOK, "index.html", gin.H{
+				"itme": []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "10"},
+			})
 		})
 
 	}
 
 	api := router.Group("/api")
 	{
-		api.POST("/download", app.DownloadFile)
-		api.POST("/delete", app.DeleteFile)
-		api.GET("/config", app.SetConfig)
-		api.GET("/file/all", app.GetBackupFilesList)
-		api.POST("/config", app.SetConfig)
+		api.POST("/download", service.DownloadFile)
+		api.POST("/delete", service.DeleteFile)
+		api.GET("/config", service.SetConfig)
+		api.GET("/file/all", service.GetBackupFilesList)
+		api.POST("/config", service.SetConfig)
 	}
 }

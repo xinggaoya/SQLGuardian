@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="../static/zui.css">
+</head>
+<body>
+<div>
+    <div class="panel">
+        <div class="panel-heading">
+            <div class="panel-title">备份列表</div>
+        </div>
+        <div class="panel-body">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>组成部分</th>
+                    <th>元素标签</th>
+                    <th>说明</th>
+                </tr>
+                </thead>
+                <tbody>
+                {{ range $index, $element := .itme }}
+                <tr>
+                    <td>{{$element}}</td>
+                    <td><code>&lt;thead&gt;</code></td>
+                    <td>表头通常作为表格第一行，用于展示所有数据的各个属性名称。</td>
+                </tr>
+                {{ end }}
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>总计</th>
+                    <th colspan="2">3 个部分</th>
+                </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="panel-footer">面板底部</div>
+    </div>
+</div>
+</body>
+</html>
+
+<script type="module">
+    import {Messager} from '../static/zui.esm.js';
+
+    $('button').on('click', function () {
+        Messager.show({
+            type: 'primary',
+            content: '这是一个提示信息'
+        });
+    });
+</script>
